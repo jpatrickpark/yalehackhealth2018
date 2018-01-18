@@ -2,7 +2,7 @@
 
 import logging
 import os
-import sys
+import shutil
 import tarfile
 import urllib.request
 
@@ -46,6 +46,20 @@ IMAGE_HEIGHT = 512
 # The default image size as required by the inception v1 model
 TARGET_IMAGE_WIDTH = TARGET_IMAGE_HEIGHT = 224
 
+LARGE_DATASET_URLS = [
+    'https://github.com/ButterflyNetwork/YaleHackathon2018/releases/download'
+    '/v.0.0.1/butterfly_dataset_test.tar.gz',
+    'https://github.com/ButterflyNetwork/YaleHackathon2018/releases/download'
+    '/v.0.0.1/butterfly_dataset_training1.tar.gz',
+    'https://github.com/ButterflyNetwork/YaleHackathon2018/releases/download'
+    '/v.0.0.1/butterfly_dataset_training2.tar.gz',
+]
+
+MINI_DATASET_URLS = [
+    'https://github.com/ButterflyNetwork/YaleHackathon2018'
+    '/releases/download/v.0.0.1/butterfly_mini_dataset.tar.gz'
+]
+
 
 @click.group()
 def cli():
@@ -58,41 +72,80 @@ def cli():
     default=os.getcwd(),
     type=click.Path(exists=True, dir_okay=True)
 )
+@click.option('--large', default=False, is_flag=True)
 @cli.command()
-def download_dataset(dest_dir):
+def download_dataset(dest_dir, large):
     """ Download and extract the mini dataset.
 
     :param dest_dir: The directory where the dataset will be extracted.
+    :params large: Indicate whether to download the large dataset.
 
     Example:
     python hackathon_example.py download_dataset
+
+    To download the large dataset use:
+    python hackathon_example.py download_dataset --large
     """
-    mini_dataset_url = \
-        'https://github.com/ButterflyNetwork/YaleHackathon2018' \
-        '/releases/download/v.0.0.1/butterfly_mini_dataset.tar.gz'
+    urls = MINI_DATASET_URLS
+    dataset_name = 'butterfly_mini_dataset'
+    if large:
+        urls = LARGE_DATASET_URLS
+        dataset_name = 'butterfly_dataset'
 
-    filename = os.path.basename(mini_dataset_url)
-    filepath = os.path.join(dest_dir, filename)
-    if not os.path.exists(filepath):
-        class TqdmUpTo(tqdm):
-            def update_to(self, b=1, bsize=1, tsize=None):
-                if tsize is not None:
-                    self.total = tsize
-                self.update(b * bsize - self.n)
+    downloaded_files = []
 
-        with TqdmUpTo(unit='B', unit_scale=True, miniters=1,
-                      desc=os.path.basename(mini_dataset_url)) as progress_bar:
-            urllib.request.urlretrieve(mini_dataset_url, filename=filepath,
-                                       reporthook=progress_bar.update_to)
-            statinfo = os.stat(filepath)
-            log.info('Successfully downloaded {} {} bytes.'.format(
-                filename, statinfo.st_size))
-            extracted_dir_path = os.path.join(dest_dir,
-                                              'butterfly_mini_dataset')
-            if not os.path.exists(extracted_dir_path):
-                tarfile.open(filepath, 'r:gz').extractall(dest_dir)
-    else:
-        log.info('Dataset is already available here: {}'.format(dest_dir))
+    for url in urls:
+        filename = os.path.basename(url)
+        downloaded_files.append(filename)
+        filepath = os.path.join(dest_dir, filename)
+        if not os.path.exists(filepath):
+            class TqdmUpTo(tqdm):
+                def update_to(self, b=1, bsize=1, tsize=None):
+                    if tsize is not None:
+                        self.total = tsize
+                    self.update(b * bsize - self.n)
+
+            with TqdmUpTo(unit='B', unit_scale=True, miniters=1,
+                          desc=os.path.basename(filename)) as progress_bar:
+                urllib.request.urlretrieve(url, filename=filepath,
+                                           reporthook=progress_bar.update_to)
+                statinfo = os.stat(filepath)
+                log.info('Successfully downloaded {} {} bytes.'.format(
+                    filename, statinfo.st_size))
+        else:
+            log.info('Data segment is already available here: {}'.format(
+                dest_dir))
+
+    extracted_dir_path = os.path.join(
+        dest_dir,
+        dataset_name
+    )
+
+    if os.path.exists(extracted_dir_path):
+        os.rmdir(extracted_dir_path)
+
+    for downloaded_file in downloaded_files:
+        log.info('Extracting the data from {}'.format(downloaded_file))
+        tarfile.open(downloaded_file, 'r:gz').extractall(
+            extracted_dir_path
+        )
+
+    # If large dataset, combined the training folders into a single folder.
+    if large:
+        os.chdir(extracted_dir_path)
+        os.rename('training1', 'training')
+        # Copy content of trianig2 into training
+        for src in os.listdir("training2"):
+            if os.path.isdir(src):
+                dst = os.path.join('training', os.path.basename(src))
+                shutil.copytree(src, dst)
+            else:
+                dst = 'training'
+                shutil.move(os.path.join('training2', src), dst)
+        os.rmdir("training2")
+
+    log.info('The dataset {} is now available here {}.'.format(
+        dataset_name, extracted_dir_path))
 
 
 @cli.command()
