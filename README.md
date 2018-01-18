@@ -52,6 +52,8 @@ butterfly_dataset
 │   └── ...
 ```
 
+These images have been published by Butterfly Network Inc. for the Yale Hackathon 2018. They may be used for non-commercial research purposes, but they may not be re-published without the express permission of Butterfly Network Inc.
+
 ### Reference and starting point
 
 We provide a code that can be used as a reference, or as a starting point for the challenges.
