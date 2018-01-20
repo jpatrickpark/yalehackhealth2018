@@ -4,9 +4,9 @@ This repository can be used as a starting point for challenges #1 or #2 as publi
 
 ### About Butterfly Network
 
-Butterfly Network has taken advantage of an intersection of new technologies, from deep learning to cloud technology, to create an ultrasound platform that is affordable and accessible to everyone. By replacing the piezoelectric crystals traditionally used to generate ultrasound with semiconductor technology Butterfly has exponentially lowered the the cost of this life-saving technology. This new approach has also produced the first transducer that can image the entire body, making exams faster and more efficient.
+Butterfly Network has developed an innovative ultrasound platform that is affordable and accessible to everyone. By replacing the piezoelectric crystals traditionally used to generate ultrasound with semiconductor technology, Butterfly has exponentially lowered the the cost of life-saving technology. Our unique hardware platform has the additional advantage of being the first and only ultrasound transducer that can image the entire body, making exams faster and more efficient.
 
-To build out this vision, we need exceptional talent that is passionate about our mission. Thank you for being a part of this event!
+To continue developing this vision, we're seeking exceptional talent that is passionate about medical, making an impact and driving innovation. Thank you for being a part of this event!
 
 ### The Butterfly Network ultrasound dataset
 
