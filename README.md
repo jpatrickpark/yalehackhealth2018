@@ -8,7 +8,7 @@ Butterfly Network has taken advantage of an intersection of new technologies, fr
 
 To build out this vision, we need exceptional talent that is passionate about our mission. Thank you for being a part of this event!
 
-### The view classification dataset
+### The Butterfly Network ultrasound dataset
 
 The ultrasound dataset can be download directly using the following links:
 [Set 1](https://github.com/ButterflyNetwork/YaleHackathon2018/releases/download/v.0.0.1/butterfly_dataset_test.tar.gz)
