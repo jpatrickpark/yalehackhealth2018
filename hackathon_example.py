@@ -122,7 +122,7 @@ def download_dataset(dest_dir, large):
     )
 
     if os.path.exists(extracted_dir_path):
-        os.rmdir(extracted_dir_path)
+        shutil.rmtree(extracted_dir_path)
 
     for downloaded_file in downloaded_files:
         log.info('Extracting the data from {}'.format(downloaded_file))
@@ -190,7 +190,7 @@ def evaluate(input_file, batch_size, export_dir):
         next_test_batch = data_iterator.get_next()
 
         saver = tf.train.import_meta_graph(
-            os.path.join(export_dir, 'buttefly-model.meta')
+            os.path.join(export_dir, 'butterfly-model.meta')
         )
         images = graph.get_tensor_by_name("images:0")
         labels = graph.get_tensor_by_name("labels:0")
@@ -376,7 +376,8 @@ def train(input_file, batch_size, number_of_epochs, export_dir):
                     best_validation_accuracy < accuracy
             ):
                 best_validation_accuracy = accuracy
-                saver.save(session, os.path.join(export_dir, 'buttefly-model'))
+                saver.save(session, os.path.join(export_dir,
+                                                 'butterfly-model'))
 
 
 def create_model(images, labels):
