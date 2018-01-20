@@ -10,6 +10,15 @@ To build out this vision, we need exceptional talent that is passionate about ou
 
 ### The view classification dataset
 
+The ultrasound dataset can be download directly using the following links:
+[Set 1](https://github.com/ButterflyNetwork/YaleHackathon2018/releases/download/v.0.0.1/butterfly_dataset_test.tar.gz)
+[Set 1](https://github.com/ButterflyNetwork/YaleHackathon2018/releases/download/v.0.0.1/butterfly_dataset_training1.tar.gz)
+[Set 3](https://github.com/ButterflyNetwork/YaleHackathon2018/releases/download/v.0.0.1/butterfly_dataset_training2.tar.gz)
+
+A mini-version (a small subset) of the dataset is available [here](https://github.com/ButterflyNetwork/YaleHackathon2018/releases/download/v.0.0.1/butterfly_mini_dataset.tar.gz).
+
+These images have been published by Butterfly Network Inc. for the Yale Hackathon 2018. They may be used for non-commercial research purposes, but they may not be re-published without the express permission of Butterfly Network Inc.
+
 You will be provided with 2 ultrasound datasets.
 The large dataset (butterfly_dataset) contains 9 different classes of ultrasound images acquired with the Butterfly IQ on 31 individuals.
 The smaller subset of this dataset is called butterfly_mini_dataset. Each of the classes is acquired on a different part of the body.
@@ -51,8 +60,6 @@ butterfly_dataset
 │   ├── 27
 │   └── ...
 ```
-
-These images have been published by Butterfly Network Inc. for the Yale Hackathon 2018. They may be used for non-commercial research purposes, but they may not be re-published without the express permission of Butterfly Network Inc.
 
 ### Reference and starting point
 
