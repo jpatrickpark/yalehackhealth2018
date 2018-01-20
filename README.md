@@ -17,7 +17,7 @@ The ultrasound dataset can be download directly using the following links:
 
 A mini-version (a small subset) of the dataset is available [here](https://github.com/ButterflyNetwork/YaleHackathon2018/releases/download/v.0.0.1/butterfly_mini_dataset.tar.gz).
 
-These images have been published by Butterfly Network Inc. for the Yale Hackathon 2018. They may be used for non-commercial research purposes, but they may not be re-published without the express permission of Butterfly Network Inc.
+These images have been published by Butterfly Network Inc., and may be used solely for the Yale Hackathon 2018. The images may not be used for any other purpose, and may not be re-published without the express written permission of Butterfly Network Inc.
 
 You will be provided with 2 ultrasound datasets.
 The large dataset (butterfly_dataset) contains 9 different classes of ultrasound images acquired with the Butterfly IQ on 31 individuals.
