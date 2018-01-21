@@ -271,7 +271,7 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
 
                     # generate partially patched images
                     x_dim, y_dim = 32,32
-                    result = np.zeros(shape=(y_dim,x_dim))
+                    result = np.zeros(shape=(224, 224))
                     for j in range(y_dim):
                         x = 224//y_dim*j
                         for k in range(x_dim):
@@ -279,9 +279,9 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                             y = 224//x_dim*k
                             for n in range(224//y_dim):
                                 for m in range(224//x_dim):
-                                    img_copy[x+n,y+m,0] = 0
-                                    img_copy[x+n,y+m,1] = 0
-                                    img_copy[x+n,y+m,2] = 0
+                                    img_copy[x+n,y+m,0] = 0.5
+                                    img_copy[x+n,y+m,1] = 0.5
+                                    img_copy[x+n,y+m,2] = 0.5
                             #scipy.misc.imsave(os.path.join(vis_dir,'{}_masked_{}_{}.png'.format(i,j,k)), img_copy)
                             class_probs = session.run(all_likelihood,
                                 feed_dict={
@@ -290,9 +290,14 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                                 })
                             class_probs_list = class_probs.reshape((9,)).tolist()
                             #print(j,k)
-                            print(class_probs_list[predicted_class[0]])
-                            result[j][k] = class_probs_list[predicted_class[0]]
-                    scipy.misc.imsave(os.path.join(vis_dir,'{}_heatmap.png'.format(i)), result)
+                            #print(class_probs_list[predicted_class[0]])
+                            for n in range(224//y_dim):
+                                for m in range(224//x_dim):
+                                    result[x+n][y+m] = 1-class_probs_list[predicted_class[0]]
+                    plt.imshow(img,alpha=0.7)
+                    plt.imshow(result, cmap='plasma', interpolation='nearest',alpha=0.6)
+                    plt.savefig(os.path.join(vis_dir,'{}_heatmap.png'.format(i)))
+                    plt.close()
 
 
 
