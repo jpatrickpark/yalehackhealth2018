@@ -156,7 +156,7 @@ def download_dataset(dest_dir, large):
     type=click.Path(exists=True, dir_okay=False)
 )
 @click.option('--batch_size', required=False, type=click.INT, default=1)
-@click.option('--vis_dir', required=False, type=click.Path(exists=False, dir_okay=True), default="vis_dir")
+@click.option('--vis_dir', required=False, type=click.Path(exists=False, dir_okay=True), default="vis")
 @click.option(
     '--export_dir',
     required=True,
@@ -224,7 +224,7 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                             label_data: dataset_labels,
                         })
 
-            for i in range(1):
+            for i in range(10):
                 try:
                     # Read the next batch.
                     batch_images, batch_labels = session.run(next_test_batch)
@@ -263,23 +263,22 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                     plt.close()
 
                     # Evaluating the model.
-                    '''
                     session.run(accuracy_update_op,
                                 feed_dict={
                                     images: batch_images,
                                     labels: batch_labels,
                                 })
-                    '''
 
                     # generate partially patched images
-                    result = np.zeros(shape=(8,8))
-                    for j in range(8):
-                        x = 28*j
-                        for k in range(8):
+                    x_dim, y_dim = 32,32
+                    result = np.zeros(shape=(y_dim,x_dim))
+                    for j in range(y_dim):
+                        x = 224//y_dim*j
+                        for k in range(x_dim):
                             img_copy = np.copy(img)
-                            y = 28*k
-                            for n in range(28):
-                                for m in range(28):
+                            y = 224//x_dim*k
+                            for n in range(224//y_dim):
+                                for m in range(224//x_dim):
                                     img_copy[x+n,y+m,0] = 0
                                     img_copy[x+n,y+m,1] = 0
                                     img_copy[x+n,y+m,2] = 0
