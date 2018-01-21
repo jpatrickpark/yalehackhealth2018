@@ -232,7 +232,7 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                     import scipy.misc
                     scipy.misc.imsave(os.path.join(vis_dir,'{}.png'.format(i)), img)
                     #plt.imshow(img)
-                    current_label = batch_labels
+                    current_label = batch_labels[0]
 
                     predicted_class = session.run(predictions,
                     feed_dict={
@@ -252,7 +252,12 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                     class_probs_list = class_probs.reshape((9,)).tolist()
 
                     bar_graph_indices = [0,1,2,3,4,5,6,7,8]
-                    plt.bar(np.arange(len(class_probs_list)), class_probs_list,align='center',alpha=0.5)
+                    fig, ax = plt.subplots()
+                    barlist = ax.barh(np.arange(len(class_probs_list)), class_probs_list,align='center',alpha=0.5)
+                    barlist[predicted_class[0]].set_color('r')
+                    barlist[current_label].set_color('g')
+                    ax.set_yticks(np.arange(len(class_probs_list)))
+                    ax.set_yticklabels(['morisons','bladder','plax','4ch','2ch','ivc','carotid','lungs','thyroid'])
                     plt.savefig(os.path.join(vis_dir,'{}_class_probs.png'.format(i)))
                     plt.close()
 
