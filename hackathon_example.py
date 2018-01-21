@@ -155,12 +155,13 @@ def download_dataset(dest_dir, large):
     type=click.Path(exists=True, dir_okay=False)
 )
 @click.option('--batch_size', required=False, type=click.INT, default=1)
+@click.option('--vis_dir', required=False, type=click.Path(exists=False, dir_okay=True), default="vis_dir")
 @click.option(
     '--export_dir',
     required=True,
     type=click.Path(exists=True, dir_okay=True)
 )
-def evaluate(input_file, batch_size, export_dir):
+def evaluate(input_file, batch_size, vis_dir, export_dir):
     """ Evaluates the given dataset
 
     :param input_file: the csv file containing the training set.
@@ -173,6 +174,11 @@ def evaluate(input_file, batch_size, export_dir):
     --input_file=butterfly_mini_dataset/test/test.csv
     --export_dir=models
     """
+    import os
+    try:
+        os.mkdir(vis_dir)
+    except:
+        pass
 
     dataset_image_paths, dataset_labels = load_data_from_csv(input_file)
 
@@ -217,7 +223,7 @@ def evaluate(input_file, batch_size, export_dir):
                             label_data: dataset_labels,
                         })
 
-            for i in range(10):
+            for i in range(100):
                 try:
                     # Read the next batch.
                     batch_images, batch_labels = session.run(next_test_batch)
@@ -329,7 +335,7 @@ def train(input_file, batch_size, number_of_epochs, export_dir):
 
         # Define a ModelSaver
         saver = tf.train.Saver()
-        saver.save(session, os.path.join("likelihood",
+        saver.save(session, os.path.join("unintended",
                                                  'butterfly-model'))
         print("Done")
 
