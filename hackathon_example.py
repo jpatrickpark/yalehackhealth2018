@@ -224,7 +224,7 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                             label_data: dataset_labels,
                         })
 
-            for i in range(100):
+            for i in range(1):
                 try:
                     # Read the next batch.
                     batch_images, batch_labels = session.run(next_test_batch)
@@ -235,22 +235,23 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                     current_label = batch_labels[0]
 
                     predicted_class = session.run(predictions,
-                    feed_dict={
-                    images: batch_images,
-                    labels: batch_labels,
-                    })
+                        feed_dict={
+                        images: batch_images,
+                        labels: batch_labels,
+                        })
                     prob_predicted_class = session.run(likelihood,
-                    feed_dict={
-                    images: batch_images,
-                    labels: batch_labels,
-                    })
+                        feed_dict={
+                        images: batch_images,
+                        labels: batch_labels,
+                        })
                     class_probs = session.run(all_likelihood,
-                    feed_dict={
-                    images: batch_images,
-                    labels: batch_labels,
-                    })
+                        feed_dict={
+                        images: batch_images,
+                        labels: batch_labels,
+                        })
                     class_probs_list = class_probs.reshape((9,)).tolist()
 
+                    # draw_bargraph
                     bar_graph_indices = [0,1,2,3,4,5,6,7,8]
                     fig, ax = plt.subplots()
                     barlist = ax.barh(np.arange(len(class_probs_list)), class_probs_list,align='center',alpha=0.5)
@@ -262,11 +263,43 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                     plt.close()
 
                     # Evaluating the model.
+                    '''
                     session.run(accuracy_update_op,
                                 feed_dict={
                                     images: batch_images,
                                     labels: batch_labels,
                                 })
+                    '''
+
+                    # generate partially patched images
+                    result = np.zeros(shape=(8,8))
+                    for j in range(8):
+                        x = 28*j
+                        for k in range(8):
+                            img_copy = np.copy(img)
+                            y = 28*k
+                            for n in range(28):
+                                for m in range(28):
+                                    img_copy[x+n,y+m,0] = 0
+                                    img_copy[x+n,y+m,1] = 0
+                                    img_copy[x+n,y+m,2] = 0
+                            #scipy.misc.imsave(os.path.join(vis_dir,'{}_masked_{}_{}.png'.format(i,j,k)), img_copy)
+                            class_probs = session.run(all_likelihood,
+                                feed_dict={
+                                images: img_copy.reshape((1,224,224,3)),
+                                labels: batch_labels,
+                                })
+                            class_probs_list = class_probs.reshape((9,)).tolist()
+                            #print(j,k)
+                            print(class_probs_list[predicted_class[0]])
+                            result[j][k] = class_probs_list[predicted_class[0]]
+                    scipy.misc.imsave(os.path.join(vis_dir,'{}_heatmap.png'.format(i)), result)
+
+
+
+                            
+
+
                 except tf.errors.OutOfRangeError:
                     break
 
