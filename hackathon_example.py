@@ -154,7 +154,7 @@ def download_dataset(dest_dir, large):
     required=True,
     type=click.Path(exists=True, dir_okay=False)
 )
-@click.option('--batch_size', required=False, type=click.INT, default=36)
+@click.option('--batch_size', required=False, type=click.INT, default=1)
 @click.option(
     '--export_dir',
     required=True,
@@ -195,6 +195,8 @@ def evaluate(input_file, batch_size, export_dir):
         images = graph.get_tensor_by_name("images:0")
         labels = graph.get_tensor_by_name("labels:0")
         predictions = graph.get_tensor_by_name("predictions:0")
+        likelihood=graph.get_tensor_by_name("likelihood:0")
+        all_likelihood=graph.get_tensor_by_name("all_likelihood:0")
         # Add an accuracy node.
         accuracy_to_value, accuracy_update_op = tf.metrics.accuracy(
             predictions,
@@ -215,10 +217,31 @@ def evaluate(input_file, batch_size, export_dir):
                             label_data: dataset_labels,
                         })
 
-            while True:
+            for i in range(10):
                 try:
                     # Read the next batch.
                     batch_images, batch_labels = session.run(next_test_batch)
+                    img = batch_images.reshape((224,224,3))
+                    #import scipy.misc
+                    #scipy.misc.imsave('{}.png'.format(i),img)
+                    #plt.imshow(img)
+                    print(batch_labels)
+
+                    print(session.run(predictions,
+                    feed_dict={
+                    images: batch_images,
+                    labels: batch_labels,
+                    }))
+                    print(session.run(likelihood,
+                    feed_dict={
+                    images: batch_images,
+                    labels: batch_labels,
+                    }))
+                    print(session.run(all_likelihood,
+                    feed_dict={
+                    images: batch_images,
+                    labels: batch_labels,
+                    }))
 
                     # Evaluating the model.
                     session.run(accuracy_update_op,
@@ -306,6 +329,9 @@ def train(input_file, batch_size, number_of_epochs, export_dir):
 
         # Define a ModelSaver
         saver = tf.train.Saver()
+        saver.save(session, os.path.join("likelihood",
+                                                 'butterfly-model'))
+        print("Done")
 
         best_validation_accuracy = None
 
@@ -323,6 +349,8 @@ def train(input_file, batch_size, number_of_epochs, export_dir):
                 try:
                     # Read the next batch.
                     batch_images, batch_labels = session.run(next_train_batch)
+
+                    
                     # Train the model.
                     session.run([metrics_to_updates, train_op],
                                 feed_dict={
@@ -410,7 +438,6 @@ def create_model(images, labels):
         trainable_layer = 'InceptionV1/Logits/Conv2d_0c_1x1'
 
         variables_to_restore = slim.get_variables_to_restore(
-            exclude=[trainable_layer]
         )
         variables_to_train = slim.get_variables_by_suffix('', trainable_layer)
 
@@ -436,6 +463,10 @@ def create_model(images, labels):
             variables_to_train=variables_to_train,
         )
 
+        likelihood = tf.reduce_max(end_points['Predictions'], name="likelihood")
+        all_likelihood = tf.abs(end_points['Predictions'], name="all_likelihood")
+
+
         predictions = tf.argmax(
             end_points['Predictions'], 1, name="predictions"
         )
@@ -447,7 +478,7 @@ def create_model(images, labels):
 
         # Define load predefined model operation.
         restore_op, feed_dict = slim.assign_from_checkpoint(
-            'inception_v1.ckpt',
+            'models/butterfly-model',
             variables_to_restore
         )
 
