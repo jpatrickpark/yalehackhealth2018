@@ -13,6 +13,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from tensorflow.contrib.slim.nets import inception
 from tqdm import tqdm
+from matplotlib import pyplot as plt
 
 # Create top level logger
 log = logging.getLogger()
@@ -228,26 +229,32 @@ def evaluate(input_file, batch_size, vis_dir, export_dir):
                     # Read the next batch.
                     batch_images, batch_labels = session.run(next_test_batch)
                     img = batch_images.reshape((224,224,3))
-                    #import scipy.misc
-                    #scipy.misc.imsave('{}.png'.format(i),img)
+                    import scipy.misc
+                    scipy.misc.imsave(os.path.join(vis_dir,'{}.png'.format(i)), img)
                     #plt.imshow(img)
-                    print(batch_labels)
+                    current_label = batch_labels
 
-                    print(session.run(predictions,
+                    predicted_class = session.run(predictions,
                     feed_dict={
                     images: batch_images,
                     labels: batch_labels,
-                    }))
-                    print(session.run(likelihood,
+                    })
+                    prob_predicted_class = session.run(likelihood,
                     feed_dict={
                     images: batch_images,
                     labels: batch_labels,
-                    }))
-                    print(session.run(all_likelihood,
+                    })
+                    class_probs = session.run(all_likelihood,
                     feed_dict={
                     images: batch_images,
                     labels: batch_labels,
-                    }))
+                    })
+                    class_probs_list = class_probs.reshape((9,)).tolist()
+
+                    bar_graph_indices = [0,1,2,3,4,5,6,7,8]
+                    plt.bar(np.arange(len(class_probs_list)), class_probs_list,align='center',alpha=0.5)
+                    plt.savefig(os.path.join(vis_dir,'{}_class_probs.png'.format(i)))
+                    plt.close()
 
                     # Evaluating the model.
                     session.run(accuracy_update_op,
